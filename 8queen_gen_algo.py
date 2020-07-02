@@ -13,10 +13,10 @@ class Chess:
         for i in range(col):
             if self.board[row][i] == 1:
                 return False
-        for i,j in zip(range(row,-1,-1),range(col,-1,-1)):
+        for i,j in zip(reversed(range(row)),reversed(range(col))):
             if self.board[i][j] == 1:
                 return False
-        for i,j in zip(range(row,self.size,1),range(col,-1,-1)):
+        for i,j in zip(range(row,self.size,1),reversed(range(col))):
             if self.board[i][j] == 1:
                 return False
         return True
@@ -52,12 +52,12 @@ class GeneticChess:
             shuffle(DNA)
         return DNA
 
-    def initializeFirstGenereation(self):
+
+    def population(self):
         for i in range(500):
             self.env.append(self.genereteDNA())
 
-    def utilityFunction(self,gen):
-
+    def score(self,gen):
         hits = 0
         board = self.createBoard(self.size)
         self.setBoard(board,gen)
@@ -65,28 +65,27 @@ class GeneticChess:
 
         for dna in gen:
             try:
-                for i in range(col-1,-1,-1):
+                for i in reversed(range(col)):
                     if board[dna][i] == 1:
                         hits+=1
             except IndexError:
                 print(gen)
                 quit()
-            for i,j in zip(range(dna-1,-1,-1),range(col-1,-1,-1)):
+            for i,j in zip(reversed(range(dna)),reversed(range(col))):
                 if board[i][j] == 1:
                     hits+=1
-            for i,j in zip(range(dna+1,self.size,1),range(col-1,-1,-1)):
+            for i,j in zip(range(dna+1,self.size,1),reversed(range(col))):
                 if board[i][j] == 1:
                     hits+=1
             col+=1
         return hits
 
     def isGoalGen(self,gen):
-        if self.utilityFunction(gen) == 0:
+        if self.score(gen) == 0:
             return True
         return False
 
     def crossOverGens(self,firstGen,secondGen):
-        '''Approach #2'''
         for i in range(1,len(firstGen)):
             if abs(firstGen[i-1] - firstGen[i])<2:
                 firstGen[i],secondGen[i] = secondGen[i],firstGen[i]
@@ -96,7 +95,6 @@ class GeneticChess:
 
 
     def MutantGen(self,gen):
-        '''Approach #4'''
         bound = self.size//2
         from random import randint as rand
         leftSideIndex = rand(0,bound)
@@ -107,7 +105,6 @@ class GeneticChess:
                 newGen.append(dna)
         for i in range(self.size):
             if i not in newGen:
-                # newGen.insert(rand(0,len(gen)),i)
                 newGen.append(i)
 
         gen = newGen
@@ -126,12 +123,12 @@ class GeneticChess:
             self.env.append(secondGen)
 
     def makeSelection(self):
-        #index problem
+        
         genUtilities = []
         newEnv = []
 
         for gen in self.env:
-            genUtilities.append(self.utilityFunction(gen))
+            genUtilities.append(self.score(gen))
         if min(genUtilities) == 0:
             self.goalIndex = genUtilities.index(min(genUtilities))
             self.goal = self.env[self.goalIndex]
@@ -147,7 +144,7 @@ class GeneticChess:
         return newEnv
 
     def solveGA(self):
-        self.initializeFirstGenereation()
+        self.population()
         for gen in self.env:
             if self.isGoalGen(gen):
                 return gen
@@ -164,3 +161,11 @@ class GeneticChess:
                     print(self.goalIndex)
             else:
                 continue
+
+
+chess = GeneticChess(8)
+solution = chess.solveGA()
+board = chess.createBoard(chess.size)
+chess.setBoard(board,solution)
+print("Solution:")
+print(solution)

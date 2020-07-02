@@ -1,0 +1,3 @@
+To generate answer for 8 queens problem
+Run on python3
+python queens8_gen_algo.py

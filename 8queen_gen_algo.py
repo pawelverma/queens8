@@ -52,7 +52,7 @@ class GeneticChess:
             shuffle(DNA)
         return DNA
 
-
+## Initializing the population
     def population(self):
         for i in range(500):
             self.env.append(self.genereteDNA())
